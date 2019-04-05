@@ -17,7 +17,7 @@ namespace JustSaying.IntegrationTests.AwsTools
             _topic = new SnsTopicByName(
                 UniqueName,
                 Client,
-                new MessageSerialisationRegister(new NonGenericMessageSubjectProvider()),
+                new MessageSerialisationRegister(MessageSubjectProvider),
                 LoggerFactory,
                 new NonGenericMessageSubjectProvider());
 

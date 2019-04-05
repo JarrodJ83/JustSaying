@@ -41,6 +41,8 @@ namespace JustSaying.UnitTests.AwsTools.MessageHandling.MessageDispatcherTests
         private readonly ILogger _logger = Substitute.For<ILogger>();
         private readonly IMessageBackoffStrategy _messageBackoffStrategy = Substitute.For<IMessageBackoffStrategy>();
         private readonly IAmazonSQS _amazonSqsClient = Substitute.For<IAmazonSQS>();
+
+        private readonly IMessageTypeKeyTransport _messageTypeKeyTransport = Substitute.For<IMessageTypeKeyTransport>();
         
         private DummySqsQueue _queue;
         private SQSMessage _sqsMessage;
@@ -58,14 +60,14 @@ namespace JustSaying.UnitTests.AwsTools.MessageHandling.MessageDispatcherTests
 
             _loggerFactory.CreateLogger(Arg.Any<string>()).Returns(_logger);
             _queue = new DummySqsQueue(ExpectedQueueUrl, _amazonSqsClient);
-            _serialisationRegister.DeserializeMessage(Arg.Any<string>()).Returns(_typedMessage);
+            _serialisationRegister.DeserializeMessage(Arg.Any<SQSMessage>(), Arg.Any<string>()).Returns(_typedMessage);
         }
 
         protected override async Task When() =>  await SystemUnderTest.DispatchMessage(_sqsMessage);
 
         protected override MessageDispatcher CreateSystemUnderTest()
         {
-            return new MessageDispatcher(_queue, _serialisationRegister, _messageMonitor, _onError, _handlerMap, _loggerFactory, _messageBackoffStrategy);
+            return new MessageDispatcher(_queue, _serialisationRegister, _messageMonitor, _onError, _handlerMap, _loggerFactory, _messageBackoffStrategy, _messageTypeKeyTransport);
         }
 
         public class AndMessageProcessingSucceeds : WhenDispatchingMessage
@@ -79,7 +81,7 @@ namespace JustSaying.UnitTests.AwsTools.MessageHandling.MessageDispatcherTests
             [Fact]
             public void ShouldDeserializeMessage()
             {
-                _serialisationRegister.Received(1).DeserializeMessage(Arg.Is<string>(x => x == _sqsMessage.Body));
+                _serialisationRegister.Received(1).DeserializeMessage(Arg.Is<SQSMessage>(msg => msg.Equals(_sqsMessage)), Arg.Any<string>());
             }
 
             [Fact]

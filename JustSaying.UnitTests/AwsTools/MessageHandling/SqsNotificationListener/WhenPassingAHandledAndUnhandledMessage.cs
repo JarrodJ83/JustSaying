@@ -18,8 +18,7 @@ namespace JustSaying.UnitTests.AwsTools.MessageHandling.SqsNotificationListener
         [Fact]
         public void MessagesGetDeserialisedByCorrectHandler()
         {
-            SerialisationRegister.Received().DeserializeMessage(
-                SqsMessageBody(MessageTypeString));
+            SerialisationRegister.Received().DeserializeMessage(Message, string.Empty);
         }
 
         [Fact]
@@ -37,7 +36,7 @@ namespace JustSaying.UnitTests.AwsTools.MessageHandling.SqsNotificationListener
         [Fact]
         public void AllMessagesAreClearedFromQueue()
         {
-            SerialisationRegister.Received(2).DeserializeMessage(Arg.Any<string>());
+            SerialisationRegister.Received(2).DeserializeMessage(Arg.Any<Message>(), Arg.Any<string>());
 
             Sqs.Received().DeleteMessageAsync(Arg.Any<DeleteMessageRequest>());
         }

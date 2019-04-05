@@ -25,7 +25,7 @@ namespace JustSaying.UnitTests.AwsTools.MessageHandling.SqsNotificationListener
             expectedMaxMessageCount = Math.Min(MessageConstants.MaxAmazonMessageCap, 
                 Environment.ProcessorCount * MessageConstants.ParallelHandlerExecutionPerCore);
 
-            var response1 = GenerateResponseMessage(SubjectOfMessageAfterStop, Guid.NewGuid());
+            var response1 = GenerateResponseMessage();
             var response2 = new ReceiveMessageResponse
             {
                 Messages = new List<Message>()
@@ -77,8 +77,9 @@ namespace JustSaying.UnitTests.AwsTools.MessageHandling.SqsNotificationListener
         [Fact]
         public void MessageIsProcessed()
         {
-            SerialisationRegister.Received().DeserializeMessage(
-                BodyOfMessageAfterStop);
+            var received = SerialisationRegister.Received();
+
+            received.DeserializeMessage(Arg.Any<Message>(), string.Empty);
         }
     }
 }

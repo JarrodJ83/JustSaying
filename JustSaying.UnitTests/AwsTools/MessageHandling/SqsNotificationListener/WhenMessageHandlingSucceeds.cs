@@ -16,7 +16,7 @@ namespace JustSaying.UnitTests.AwsTools.MessageHandling.SqsNotificationListener
         [Fact]
         public void MessagesGetDeserialisedByCorrectHandler()
         {
-            SerialisationRegister.Received().DeserializeMessage(SqsMessageBody(MessageTypeString));
+            SerialisationRegister.Received().DeserializeMessage(Message, string.Empty);
         }
 
         [Fact]

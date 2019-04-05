@@ -10,23 +10,30 @@ namespace JustSaying.UnitTests.Messaging.Serialisation.SerialisationRegister
 {
     public class WhenDeserializingMessage : XBehaviourTest<MessageSerialisationRegister>
     {
+
+        private readonly IMessageSubjectProvider _messageSubjectProvider = Substitute.For<IMessageSubjectProvider>();
+
+
+
         private class CustomMessage : Message
         {
         }
 
         protected override MessageSerialisationRegister CreateSystemUnderTest() =>
-            new MessageSerialisationRegister(new NonGenericMessageSubjectProvider());
+            new MessageSerialisationRegister(_messageSubjectProvider);
 
         private string messageBody = "msgBody";
+
+        private const string MessageTypeKey = "Key";
         protected override void Given()
         {
+            _messageSubjectProvider.GetSubjectForType(Arg.Any<Type>()).Returns(MessageTypeKey);
             RecordAnyExceptionsThrown();
         }
 
         protected override void When()
         {
             var messageSerialiser = Substitute.For<IMessageSerialiser>();
-            messageSerialiser.GetMessageSubject(messageBody).Returns(typeof(CustomMessage).Name);
             messageSerialiser.Deserialise(messageBody, typeof (CustomMessage)).Returns(new CustomMessage());
             SystemUnderTest.AddSerialiser<CustomMessage>(messageSerialiser);
         }
@@ -34,14 +41,18 @@ namespace JustSaying.UnitTests.Messaging.Serialisation.SerialisationRegister
         [Fact]
         public void ThrowsMessageFormatNotSupportedWhenMessabeBodyIsUnserializable()
         {
-            new Action(() => SystemUnderTest.DeserializeMessage(string.Empty)).ShouldThrow<MessageFormatNotSupportedException>();
+            new Action(() => SystemUnderTest.DeserializeMessage(new Amazon.SQS.Model.Message(), "invalidKey")).ShouldThrow<MessageFormatNotSupportedException>();
         }
 
         [Fact]
         public void TheMappingContainsTheSerialiser()
         {
-            SystemUnderTest.DeserializeMessage(messageBody).ShouldNotBeNull();
-        }
+            var msg = SystemUnderTest.DeserializeMessage(new Amazon.SQS.Model.Message()
+            {
+                Body = messageBody
+            }, MessageTypeKey);
 
+            msg.ShouldNotBeNull();
+        }
     }
 }

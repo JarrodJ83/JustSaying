@@ -36,7 +36,7 @@ namespace JustSaying.UnitTests.AwsTools.MessageHandling.SqsNotificationListener
         protected override void Given()
         {
             _serialisationRegister
-                .DeserializeMessage(Arg.Any<string>())
+                .DeserializeMessage(Arg.Any<Message>(), Arg.Any<string>())
                 .Returns(x => { throw new TestException("Test from WhenThereAreExceptionsInMessageProcessing"); });
             _sqs.ReceiveMessageAsync(
                     Arg.Any<ReceiveMessageRequest>(),

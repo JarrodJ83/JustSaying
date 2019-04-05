@@ -29,7 +29,7 @@ namespace JustSaying.UnitTests.AwsTools.MessageHandling.SqsNotificationListener
         protected ILoggerFactory LoggerFactory;
         protected IMessageSerialisationRegister SerialisationRegister;
         protected IMessageLockAsync MessageLock;
-        protected readonly string MessageTypeString = typeof(SimpleMessage).ToString();
+        protected readonly Message Message = new Message();
 
         protected override JustSaying.AwsTools.MessageHandling.SqsNotificationListener CreateSystemUnderTest()
         {
@@ -46,7 +46,7 @@ namespace JustSaying.UnitTests.AwsTools.MessageHandling.SqsNotificationListener
             Handler = Substitute.For<IHandlerAsync<SimpleMessage>>();
             LoggerFactory = Substitute.For<ILoggerFactory>();
             
-            var response = GenerateResponseMessage(MessageTypeString, Guid.NewGuid());
+            var response = GenerateResponseMessage(Guid.NewGuid());
             
             Sqs.ReceiveMessageAsync(
                     Arg.Any<ReceiveMessageRequest>(), 
@@ -56,7 +56,7 @@ namespace JustSaying.UnitTests.AwsTools.MessageHandling.SqsNotificationListener
                     x => Task.FromResult(new ReceiveMessageResponse()));
 
             DeserialisedMessage = new SimpleMessage { RaisingComponent = "Component" };
-            SerialisationRegister.DeserializeMessage(Arg.Any<string>()).Returns(DeserialisedMessage);
+            SerialisationRegister.DeserializeMessage(Arg.Any<Message>(), Arg.Any<string>()).Returns(DeserialisedMessage);
         }
         protected override async Task When()
         {
@@ -74,7 +74,12 @@ namespace JustSaying.UnitTests.AwsTools.MessageHandling.SqsNotificationListener
             doneOk.ShouldBeTrue("Timout occured before done signal");
         }
 
-        protected ReceiveMessageResponse GenerateResponseMessage(string messageType, Guid messageId)
+        protected ReceiveMessageResponse GenerateResponseMessage()
+        {
+            return GenerateResponseMessage(Guid.NewGuid());
+        }
+
+        protected ReceiveMessageResponse GenerateResponseMessage(Guid messageId)
         {
             return new ReceiveMessageResponse
             {
@@ -83,20 +88,20 @@ namespace JustSaying.UnitTests.AwsTools.MessageHandling.SqsNotificationListener
                     new Message
                     {   
                         MessageId = messageId.ToString(),
-                        Body = SqsMessageBody(messageType)
+                        Body = SqsMessageBody()
                     },
                     new Message
                     {
                         MessageId = messageId.ToString(),
-                        Body = "{\"Subject\":\"SOME_UNKNOWN_MESSAGE\"," + "\"Message\":\"SOME_RANDOM_MESSAGE\"}"
+                        Body = "{\"Message\":\"SOME_RANDOM_MESSAGE\"}"
                     }
                 }
             };
         }
 
-        protected string SqsMessageBody(string messageType)
+        protected string SqsMessageBody()
         {
-            return "{\"Subject\":\"" + messageType + "\"," + "\"Message\":\"" + MessageBody + "\"}";
+            return "{\"Message\":\"" + MessageBody + "\"}";
         }
     }
 }

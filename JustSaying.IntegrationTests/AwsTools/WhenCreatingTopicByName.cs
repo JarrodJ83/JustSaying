@@ -19,6 +19,8 @@ namespace JustSaying.IntegrationTests.AwsTools
 
         protected IAmazonSimpleNotificationService Client { get; private set; }
 
+        protected IMessageSubjectProvider MessageSubjectProvider { get; private set; } = new NonGenericMessageSubjectProvider();
+
         protected ILoggerFactory LoggerFactory => TestFixture.LoggerFactory;
 
         protected RegionEndpoint Region => TestFixture.Region;
@@ -36,7 +38,7 @@ namespace JustSaying.IntegrationTests.AwsTools
             CreatedTopic = new SnsTopicByName(
                 UniqueName,
                 Client,
-                new MessageSerialisationRegister(new NonGenericMessageSubjectProvider()),
+                new MessageSerialisationRegister(MessageSubjectProvider),
                 LoggerFactory,
                 new NonGenericMessageSubjectProvider());
 

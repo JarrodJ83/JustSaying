@@ -39,8 +39,8 @@ namespace JustSaying.Messaging.MessageSerialisation
                 return msg;
             }
 
-            // for direct publishing to SQS, add Subject and Message properties manually
-            var context = new { Subject = subject, Message = msg };
+            // for direct publishing to SQS, add Message properties manually
+            var context = new { Message = msg };
             return JsonConvert.SerializeObject(context);
         }
 

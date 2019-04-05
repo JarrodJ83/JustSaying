@@ -5,7 +5,6 @@ namespace JustSaying.Messaging.MessageSerialisation
 {
     public interface IMessageSerialiser
     {
-        string GetMessageSubject(string sqsMessge);
         Message Deserialise(string message, Type type);
 
         /// <summary>

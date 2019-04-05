@@ -1,4 +1,5 @@
-using JustSaying.Models;
+using Message = JustSaying.Models.Message;
+using SQSMessage = Amazon.SQS.Model.Message;
 
 namespace JustSaying.Messaging.MessageSerialisation
 {
@@ -9,7 +10,7 @@ namespace JustSaying.Messaging.MessageSerialisation
         /// </summary>
         /// <param name="body">Message must always have Subject and Message properties</param>
         /// <returns></returns>
-        Message DeserializeMessage(string body);
+        Message DeserializeMessage(SQSMessage msg, string typeName);
 
         /// <summary>
         /// Serializes a message for publishing

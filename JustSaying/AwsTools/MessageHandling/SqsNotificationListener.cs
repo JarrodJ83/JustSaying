@@ -14,6 +14,7 @@ using JustSaying.Messaging.MessageSerialisation;
 using JustSaying.Messaging.Monitoring;
 using Microsoft.Extensions.Logging;
 using Message = JustSaying.Models.Message;
+using SQSMessage = Amazon.SQS.Model.Message;
 
 namespace JustSaying.AwsTools.MessageHandling
 {
@@ -38,7 +39,8 @@ namespace JustSaying.AwsTools.MessageHandling
             ILoggerFactory loggerFactory,
             Action<Exception, Amazon.SQS.Model.Message> onError = null,
             IMessageLockAsync messageLock = null,
-            IMessageBackoffStrategy messageBackoffStrategy = null)
+            IMessageBackoffStrategy messageBackoffStrategy = null,
+            IMessageTypeKeyTransport messageTypeKeyTransport = null)
         {
             _queue = queue;
             _messagingMonitor = messagingMonitor;
@@ -47,7 +49,7 @@ namespace JustSaying.AwsTools.MessageHandling
 
             _messageProcessingStrategy = new DefaultThrottledThroughput(_messagingMonitor);
             _messageHandlerWrapper = new MessageHandlerWrapper(messageLock, _messagingMonitor);
-            _messageDispatcher = new MessageDispatcher(queue, serialisationRegister, messagingMonitor, onError, _handlerMap, loggerFactory, messageBackoffStrategy);
+            _messageDispatcher = new MessageDispatcher(queue, serialisationRegister, messagingMonitor, onError, _handlerMap, loggerFactory, messageBackoffStrategy, messageTypeKeyTransport ?? new MessageAttributesMessageTypeKeyTransport());
 
             Subscribers = new Collection<ISubscriber>();
 

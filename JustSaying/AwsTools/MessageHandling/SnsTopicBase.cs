@@ -17,6 +17,7 @@ namespace JustSaying.AwsTools.MessageHandling
     {
         private readonly IMessageSerialisationRegister _serialisationRegister; // ToDo: Grrr...why is this here even. GET OUT!
         private readonly IMessageSubjectProvider _messageSubjectProvider;
+        private readonly IMessageTypeKeyTransport _messageTypeKeyTransport;
         private readonly SnsWriteConfiguration _snsWriteConfiguration;
         public Action<MessageResponse, Message> MessageResponseLogger { get; set; }
         public string Arn { get; protected set; }
@@ -24,10 +25,11 @@ namespace JustSaying.AwsTools.MessageHandling
         private readonly ILogger _eventLog;
         private readonly ILogger _log;
 
-        protected SnsTopicBase(IMessageSerialisationRegister serialisationRegister, ILoggerFactory loggerFactory, IMessageSubjectProvider messageSubjectProvider)
+        protected SnsTopicBase(IMessageSerialisationRegister serialisationRegister, ILoggerFactory loggerFactory, IMessageSubjectProvider messageSubjectProvider, IMessageTypeKeyTransport messageTypeKeyTransport)
         {
             _serialisationRegister = serialisationRegister;
             _messageSubjectProvider = messageSubjectProvider;
+            _messageTypeKeyTransport = messageTypeKeyTransport;
             _log = loggerFactory.CreateLogger("JustSaying");
             _eventLog = loggerFactory.CreateLogger("EventLog");
         }
@@ -76,7 +78,9 @@ namespace JustSaying.AwsTools.MessageHandling
         private PublishRequest BuildPublishRequest(Message message)
         {
             var messageToSend = _serialisationRegister.Serialise(message, serializeForSnsPublishing: true);
-            var messageType = _messageSubjectProvider.GetSubjectForType(message.GetType());
+            var messageTypeKey = _messageSubjectProvider.GetSubjectForType(message.GetType());
+
+            _messageTypeKeyTransport.Store(messageTypeKey, message);
 
             var messageAttributeValues = message.MessageAttributes?.ToDictionary(
                 source => source.Key,
@@ -96,7 +100,7 @@ namespace JustSaying.AwsTools.MessageHandling
             return new PublishRequest
             {
                 TopicArn = Arn,
-                Subject = messageType,
+                Subject = messageTypeKey,
                 Message = messageToSend,
                 MessageAttributes = messageAttributeValues
             };

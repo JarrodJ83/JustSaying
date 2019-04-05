@@ -20,6 +20,7 @@ namespace JustSaying.AwsTools.MessageHandling
         private readonly Action<Exception, SQSMessage> _onError;
         private readonly HandlerMap _handlerMap;
         private readonly IMessageBackoffStrategy _messageBackoffStrategy;
+        private readonly IMessageTypeKeyTransport _messageTypeKeyTransport;
 
         private static ILogger _log;
 
@@ -30,7 +31,8 @@ namespace JustSaying.AwsTools.MessageHandling
             Action<Exception, SQSMessage> onError,
             HandlerMap handlerMap,
             ILoggerFactory loggerFactory,
-            IMessageBackoffStrategy messageBackoffStrategy)
+            IMessageBackoffStrategy messageBackoffStrategy,
+            IMessageTypeKeyTransport messageTypeKeyTransport)
         {
             _queue = queue;
             _serialisationRegister = serialisationRegister;
@@ -39,6 +41,7 @@ namespace JustSaying.AwsTools.MessageHandling
             _handlerMap = handlerMap;
             _log = loggerFactory.CreateLogger("JustSaying");
             _messageBackoffStrategy = messageBackoffStrategy;
+            _messageTypeKeyTransport = messageTypeKeyTransport;
         }
 
         public async Task DispatchMessage(SQSMessage message)
@@ -46,12 +49,13 @@ namespace JustSaying.AwsTools.MessageHandling
             Message typedMessage;
             try
             {
-                typedMessage = _serialisationRegister.DeserializeMessage(message.Body);
+                string messageTypeKey = _messageTypeKeyTransport.RetrieveFrom(message);
+
+                typedMessage = _serialisationRegister.DeserializeMessage(message, messageTypeKey);
             }
             catch (MessageFormatNotSupportedException ex)
             {
-                _log.LogTrace($"Didn't handle message [{message.Body ?? string.Empty}]. No serialiser setup");
-                await DeleteMessageFromQueue(message.ReceiptHandle).ConfigureAwait(false);
+                _log.LogTrace($"Didn't handle message [{message.Body ?? string.Empty}]. {ex.Message}");
                 _onError(ex, message);
                 return;
             }

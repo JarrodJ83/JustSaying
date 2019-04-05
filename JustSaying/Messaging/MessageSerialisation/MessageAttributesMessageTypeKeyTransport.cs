@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using JustSaying.Models;
 using Newtonsoft.Json.Linq;
 
@@ -24,6 +25,11 @@ namespace JustSaying.Messaging.MessageSerialisation
 
         public void Store(string messagTypeKey, Message msg)
         {
+            if (msg.MessageAttributes == null)
+            {
+                msg.MessageAttributes = new Dictionary<string, MessageAttributeValue>();
+            }
+
             msg.MessageAttributes?.Add(RequiredMessageAttributes.JustSayingMessageType, new Models.MessageAttributeValue
             {
                 DataType = "String",

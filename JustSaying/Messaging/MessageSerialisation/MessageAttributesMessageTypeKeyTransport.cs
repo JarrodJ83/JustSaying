@@ -1,4 +1,5 @@
 using JustSaying.Models;
+using Newtonsoft.Json.Linq;
 
 namespace JustSaying.Messaging.MessageSerialisation
 {
@@ -6,17 +7,24 @@ namespace JustSaying.Messaging.MessageSerialisation
     {
         public string RetrieveFrom(Amazon.SQS.Model.Message message)
         {
-            if (message.MessageAttributes.ContainsKey(RequiredMessageAttributes.JustSayingMessageType))
-            {
-                return message.MessageAttributes[RequiredMessageAttributes.JustSayingMessageType].StringValue;
-            }
+            JObject messageJson = JObject.Parse(message.Body);
 
-            return string.Empty;
+            JToken messageAttributesAttr = messageJson["MessageAttributes"];
+
+            if(messageAttributesAttr ==  null)
+                throw new MessageFormatNotSupportedException("MessageAttributes missing from message");
+
+            JToken justSayingMessageTypeAttr = messageAttributesAttr[RequiredMessageAttributes.JustSayingMessageType];
+
+            if (justSayingMessageTypeAttr == null)
+                throw new MessageFormatNotSupportedException($"{RequiredMessageAttributes.JustSayingMessageType} missing from MessageAttributes");
+
+            return justSayingMessageTypeAttr.Value<string>("Value");
         }
 
         public void Store(string messagTypeKey, Message msg)
         {
-            msg.MessageAttributes.Add(RequiredMessageAttributes.JustSayingMessageType, new Models.MessageAttributeValue
+            msg.MessageAttributes?.Add(RequiredMessageAttributes.JustSayingMessageType, new Models.MessageAttributeValue
             {
                 DataType = "String",
                 StringValue = messagTypeKey

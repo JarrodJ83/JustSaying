@@ -78,12 +78,6 @@ namespace JustSaying.AwsTools.MessageHandling
             var messageToSend = _serialisationRegister.Serialise(message, serializeForSnsPublishing: true);
             var messageType = _messageSubjectProvider.GetSubjectForType(message.GetType());
 
-            message.MessageAttributes.Add(RequiredMessageAttributes.JustSayingMessageType, new Models.MessageAttributeValue
-            {
-                DataType = "String",
-                StringValue = message.GetType().FullName
-            });
-
             var messageAttributeValues = message.MessageAttributes?.ToDictionary(
                 source => source.Key,
                 source =>

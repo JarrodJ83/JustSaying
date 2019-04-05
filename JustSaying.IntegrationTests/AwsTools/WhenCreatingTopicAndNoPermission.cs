@@ -21,7 +21,8 @@ namespace JustSaying.IntegrationTests.AwsTools
                 snsClient,
                 new MessageSerialisationRegister(MessageSubjectProvider),
                 LoggerFactory,
-                new NonGenericMessageSubjectProvider());
+                new NonGenericMessageSubjectProvider(),
+                new MessageAttributesMessageTypeKeyTransport());
 
             _createWasSuccessful = await _topic.CreateAsync();
         }

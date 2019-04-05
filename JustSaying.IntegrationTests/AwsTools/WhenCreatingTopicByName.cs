@@ -40,7 +40,8 @@ namespace JustSaying.IntegrationTests.AwsTools
                 Client,
                 new MessageSerialisationRegister(MessageSubjectProvider),
                 LoggerFactory,
-                new NonGenericMessageSubjectProvider());
+                new NonGenericMessageSubjectProvider(),
+                new MessageAttributesMessageTypeKeyTransport());
 
             CreatedTopic.CreateAsync().ResultSync();
 

@@ -9,6 +9,7 @@ namespace JustSaying
         IList<string> Regions { get; }
         Func<string> GetActiveRegion { get; set; }
         IMessageSubjectProvider MessageSubjectProvider { get; }
+        IMessageTypeKeyTransport MessageTypeKeyTransport { get; }
 
         void Validate();
     }

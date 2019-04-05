@@ -16,8 +16,10 @@ namespace JustSaying.AwsTools.MessageHandling
         public string TopicName { get; }
         private readonly ILogger _log;
 
-        public SnsTopicByName(string topicName, IAmazonSimpleNotificationService client, IMessageSerialisationRegister serialisationRegister, ILoggerFactory loggerFactory, IMessageSubjectProvider messageSubjectProvider)
-            : base(serialisationRegister, loggerFactory, messageSubjectProvider)
+        public SnsTopicByName(string topicName, IAmazonSimpleNotificationService client, IMessageSerialisationRegister serialisationRegister, ILoggerFactory loggerFactory,
+            IMessageSubjectProvider messageSubjectProvider,
+            IMessageTypeKeyTransport messageTypeKeyTransport)
+            : base(serialisationRegister, loggerFactory, messageSubjectProvider, messageTypeKeyTransport)
         {
             TopicName = topicName;
             Client = client;
@@ -26,9 +28,11 @@ namespace JustSaying.AwsTools.MessageHandling
 
         public SnsTopicByName(string topicName, IAmazonSimpleNotificationService client,
             IMessageSerialisationRegister serialisationRegister,
-            ILoggerFactory loggerFactory, SnsWriteConfiguration snsWriteConfiguration,
-            IMessageSubjectProvider messageSubjectProvider)
-            : base(serialisationRegister, loggerFactory, snsWriteConfiguration, messageSubjectProvider)
+            ILoggerFactory loggerFactory,
+            SnsWriteConfiguration snsWriteConfiguration,
+            IMessageSubjectProvider messageSubjectProvider,
+            IMessageTypeKeyTransport messageTypeKeyTransport)
+            : base(serialisationRegister, loggerFactory, snsWriteConfiguration, messageSubjectProvider, messageTypeKeyTransport)
         {
             TopicName = topicName;
             Client = client;

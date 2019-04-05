@@ -13,15 +13,17 @@ namespace JustSaying.AwsTools.QueueCreation
     public class AmazonQueueCreator : IVerifyAmazonQueues
     {
         private readonly IAwsClientFactoryProxy _awsClientFactory;
+        private readonly IMessageTypeKeyTransport _messageTypeKeyTransport;
         private readonly ILoggerFactory _loggerFactory;
         private readonly IRegionResourceCache<SqsQueueByName> _queueCache = new RegionResourceCache<SqsQueueByName>();
         private readonly ILogger _log;
 
         private const string EmptyFilterPolicy = "{}";
 
-        public AmazonQueueCreator(IAwsClientFactoryProxy awsClientFactory, ILoggerFactory loggerFactory)
+        public AmazonQueueCreator(IAwsClientFactoryProxy awsClientFactory, IMessageTypeKeyTransport messageTypeKeyTransport, ILoggerFactory loggerFactory)
         {
             _awsClientFactory = awsClientFactory;
+            _messageTypeKeyTransport = messageTypeKeyTransport;
             _loggerFactory = loggerFactory;
             _log = loggerFactory.CreateLogger("JustSaying");
         }
@@ -44,7 +46,7 @@ namespace JustSaying.AwsTools.QueueCreation
             }
             else
             {
-                var eventTopic = new SnsTopicByName(queueConfig.PublishEndpoint, snsClient, serialisationRegister, _loggerFactory, messageSubjectProvider);
+                var eventTopic = new SnsTopicByName(queueConfig.PublishEndpoint, snsClient, serialisationRegister, _loggerFactory, messageSubjectProvider, _messageTypeKeyTransport);
                 await eventTopic.CreateAsync().ConfigureAwait(false);
 
                 await SubscribeQueueAndApplyFilterPolicyAsync(snsClient, eventTopic.Arn, sqsClient, queue.Url, queueConfig.FilterPolicy).ConfigureAwait(false);

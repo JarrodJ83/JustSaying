@@ -48,7 +48,7 @@ namespace JustSaying
 
             var awsClientFactoryProxy = new AwsClientFactoryProxy(() => CreateMeABus.DefaultClientFactory());
 
-            var amazonQueueCreator = new AmazonQueueCreator(awsClientFactoryProxy, dependencies.LoggerFactory);
+            var amazonQueueCreator = new AmazonQueueCreator(awsClientFactoryProxy, dependencies.MessageTypeKeyTransport, dependencies.LoggerFactory);
             var bus = new JustSayingFluently(justSayingBus, amazonQueueCreator, awsClientFactoryProxy, dependencies.LoggerFactory);
 
             bus

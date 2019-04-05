@@ -36,13 +36,14 @@ namespace JustSaying.AwsTools.MessageHandling
 
         protected SnsTopicBase(IMessageSerialisationRegister serialisationRegister,
             ILoggerFactory loggerFactory, SnsWriteConfiguration snsWriteConfiguration,
-            IMessageSubjectProvider messageSubjectProvider)
+            IMessageSubjectProvider messageSubjectProvider, IMessageTypeKeyTransport messageTypeKeyTransport)
         {
             _serialisationRegister = serialisationRegister;
             _log = loggerFactory.CreateLogger("JustSaying");
             _eventLog = loggerFactory.CreateLogger("EventLog");
             _snsWriteConfiguration = snsWriteConfiguration;
             _messageSubjectProvider = messageSubjectProvider;
+            _messageTypeKeyTransport = messageTypeKeyTransport;
         }
 
         public abstract Task<bool> ExistsAsync();

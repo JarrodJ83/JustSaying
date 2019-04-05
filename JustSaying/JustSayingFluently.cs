@@ -89,7 +89,8 @@ namespace JustSaying
                     _awsClientFactoryProxy.GetAwsClientFactory().GetSnsClient(RegionEndpoint.GetBySystemName(region)),
                     Bus.SerialisationRegister,
                     _loggerFactory, snsWriteConfig,
-                    Bus.Config.MessageSubjectProvider)
+                    Bus.Config.MessageSubjectProvider,
+                    Bus.Config.MessageTypeKeyTransport)
                 {
                     MessageResponseLogger = Bus.Config.MessageResponseLogger
                 };

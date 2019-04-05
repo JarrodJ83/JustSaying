@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using JustSaying.AwsTools;
 using JustSaying.AwsTools.MessageHandling;
 using JustSaying.Messaging.MessageSerialisation;
@@ -18,6 +17,7 @@ namespace JustSaying
             AdditionalSubscriberAccounts = new List<string>();
             Regions = new List<string>();
             MessageSubjectProvider = new NonGenericMessageSubjectProvider();
+            MessageTypeKeyTransport = new MessageAttributesMessageTypeKeyTransport();
         }
 
         public int PublishFailureReAttempts { get; set; }
@@ -27,6 +27,7 @@ namespace JustSaying
         public IList<string> Regions { get; private set; }
         public Func<string> GetActiveRegion { get; set; }
         public IMessageSubjectProvider MessageSubjectProvider { get; set; }
+        public IMessageTypeKeyTransport MessageTypeKeyTransport { get; set; }
 
         public virtual void Validate()
         {
@@ -43,6 +44,9 @@ namespace JustSaying
 
             if (MessageSubjectProvider == null)
                 throw new ArgumentNullException("config.MessageSubjectProvider");
+
+            if (MessageTypeKeyTransport == null)
+                throw new ArgumentNullException("config.MessageTypeKeyTransport");
         }
     }
 }

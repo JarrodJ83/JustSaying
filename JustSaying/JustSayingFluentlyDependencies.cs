@@ -7,5 +7,6 @@ namespace JustSaying
     {
         public ILoggerFactory LoggerFactory { get; set; }
         public IMessageSubjectProvider MessageSubjectProvider { get; set; }
+        public IMessageTypeKeyTransport MessageTypeKeyTransport { get; set; }
     }
 }

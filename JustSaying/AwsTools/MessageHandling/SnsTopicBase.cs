@@ -101,7 +101,6 @@ namespace JustSaying.AwsTools.MessageHandling
             return new PublishRequest
             {
                 TopicArn = Arn,
-                Subject = messageTypeKey,
                 Message = messageToSend,
                 MessageAttributes = messageAttributeValues
             };

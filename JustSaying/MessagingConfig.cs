@@ -17,7 +17,7 @@ namespace JustSaying
             AdditionalSubscriberAccounts = new List<string>();
             Regions = new List<string>();
             MessageSubjectProvider = new NonGenericMessageSubjectProvider();
-            MessageTypeKeyTransport = new MessageAttributesMessageTypeKeyTransport();
+            MessageTypeKeyTransport = new BackwardCompatibilitySubjectMessageTypeKeyTransport(new MessageAttributesMessageTypeKeyTransport());
         }
 
         public int PublishFailureReAttempts { get; set; }

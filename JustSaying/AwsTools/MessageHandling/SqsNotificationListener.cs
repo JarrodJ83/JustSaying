@@ -49,7 +49,7 @@ namespace JustSaying.AwsTools.MessageHandling
 
             _messageProcessingStrategy = new DefaultThrottledThroughput(_messagingMonitor);
             _messageHandlerWrapper = new MessageHandlerWrapper(messageLock, _messagingMonitor);
-            _messageDispatcher = new MessageDispatcher(queue, serialisationRegister, messagingMonitor, onError, _handlerMap, loggerFactory, messageBackoffStrategy, messageTypeKeyTransport ?? new MessageAttributesMessageTypeKeyTransport());
+            _messageDispatcher = new MessageDispatcher(queue, serialisationRegister, messagingMonitor, onError, _handlerMap, loggerFactory, messageBackoffStrategy, messageTypeKeyTransport ?? new BackwardCompatibilitySubjectMessageTypeKeyTransport(new MessageAttributesMessageTypeKeyTransport()));
 
             Subscribers = new Collection<ISubscriber>();
 

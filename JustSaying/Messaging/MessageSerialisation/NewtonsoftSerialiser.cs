@@ -52,13 +52,5 @@ namespace JustSaying.Messaging.MessageSerialisation
                        Converters = new JsonConverter[] {new Newtonsoft.Json.Converters.StringEnumConverter()}
                    };
         }
-
-        public string GetMessageSubject(string sqsMessge)
-        {
-            var body = JObject.Parse(sqsMessge);
-
-            var type = body["Subject"] ?? string.Empty;
-            return type.ToString();
-        }
     }
 }
